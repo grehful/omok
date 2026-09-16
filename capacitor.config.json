@@ -1,0 +1,12 @@
+{
+  "appId": "com.grehful.omok",
+  "appName": "오목",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#E4E6E0"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
