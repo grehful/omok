@@ -28,6 +28,11 @@ jobs:
       - name: Build web assets and sync to Android
         run: npm run sync
 
+      # 웹 UI로 업로드하면 실행 권한이 사라지므로 여기서 다시 준다
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+        working-directory: android
+
       - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon
         working-directory: android
