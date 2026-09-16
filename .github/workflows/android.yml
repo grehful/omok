@@ -14,6 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Gradle 이 6분 뒤에 알려줄 리소스 오류를 여기서 몇 초 만에 잡는다
+      - name: Validate Android XML resources
+        run: python3 tools/check-xml.py
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22

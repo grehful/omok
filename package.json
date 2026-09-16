@@ -7,8 +7,9 @@
     "build": "node tools/build-android.mjs",
     "icons": "python3 tools/gen-icons.py",
     "sync": "npm run build && cap sync android",
-    "apk": "npm run sync && cd android && ./gradlew assembleDebug",
-    "serve": "node tools/build-android.mjs && npx --yes http-server dist -p 8080 -c-1"
+    "apk": "npm run check && npm run sync && cd android && ./gradlew assembleDebug",
+    "serve": "node tools/build-android.mjs && npx --yes http-server dist -p 8080 -c-1",
+    "check": "python3 tools/check-xml.py"
   },
   "dependencies": {
     "@capacitor/android": "^7.6.9",

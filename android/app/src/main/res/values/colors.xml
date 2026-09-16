@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 게임 화면과 맞춘 값 (www/index.html 의 --ground, --accent, --wood-b) -->
+    <!-- 게임 화면과 맞춘 값 (www/index.html 의 ground, accent, wood-b 토큰) -->
     <color name="splash_bg">#E4E6E0</color>
     <color name="ic_launcher_background">#C6913F</color>
     <color name="colorPrimary">#8B5E2B</color>
