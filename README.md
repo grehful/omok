@@ -25,9 +25,19 @@ https://claude.ai/artifact/HAMfWTSzEJJSWHmewVQ7TA
 
 ## APK 받기
 
-`main`에 푸시하면 GitHub Actions가 APK를 빌드합니다.
-Actions 탭 → 해당 실행 → Artifacts 에서 `omok-debug-apk`를 내려받아 기기에 설치하세요.
-(`omok-release-unsigned-apk`는 서명이 없어 그대로는 설치되지 않습니다. 배포용은 아래 참고.)
+`main`에 푸시하면 GitHub Actions가 APK를 빌드하고, 두 곳에 올려둡니다.
+
+**Releases** — 폰에서 받을 때 편합니다. `https://github.com/<사용자명>/omok/releases/latest`
+에 항상 최신 APK가 파일 그대로 붙어 있어서, 폰 브라우저에서 눌러 바로 설치할 수 있습니다.
+
+**Actions → Artifacts** — `omok-debug-apk`. zip으로 내려오므로 압축을 풀어야 합니다.
+90일 뒤 자동 삭제됩니다.
+
+Release 단계가 건너뛰어졌다면 저장소 Settings → Actions → General → Workflow permissions 를
+**Read and write permissions** 로 바꾸고 다시 빌드하세요. (이 단계가 실패해도 빌드는
+성공 처리되므로 Artifacts 로는 항상 받을 수 있습니다.)
+
+`omok-release-unsigned-apk`는 서명이 없어 그대로는 설치되지 않습니다. 배포용은 아래 참고.
 
 ## 직접 빌드하기
 

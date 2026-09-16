@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write        # Release 에 APK 를 붙이기 위해 필요
     steps:
       - uses: actions/checkout@v4
 
@@ -52,3 +54,19 @@ jobs:
           name: omok-release-unsigned-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
+
+      # 폰에서 바로 눌러 설치할 수 있도록 Release 에 APK 를 그대로 붙인다.
+      # (Artifacts 는 zip 으로 내려와서 폰에서 한 번 더 풀어야 한다)
+      # 권한이 막혀 있어도 빌드 자체는 성공시킨다 — Artifacts 로 받으면 되므로.
+      - name: Attach APK to a release
+        if: github.ref == 'refs/heads/main'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="omok-${{ github.run_number }}.apk"
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$APK"
+          gh release create "build-${{ github.run_number }}" "$APK" \
+            --title "오목 빌드 #${{ github.run_number }}" \
+            --notes "폰에서 아래 $APK 를 눌러 설치하세요. (디버그 서명 빌드)" \
+            --latest
