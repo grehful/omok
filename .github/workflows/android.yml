@@ -9,8 +9,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write        # Release 에 APK 를 붙이기 위해 필요
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: omok
+            label: 오목
+            dir: .
+            sync: npm run sync
+            slug: omok
+          - app: duck
+            label: 덕 헌팅
+            dir: duck
+            sync: npm run sync:duck
+            slug: duckhunt
+    name: ${{ matrix.label }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,45 +45,61 @@ jobs:
         run: npm ci
 
       - name: Build web assets and sync to Android
-        run: npm run sync
+        run: ${{ matrix.sync }}
 
       # 웹 UI로 업로드하면 실행 권한이 사라지므로 여기서 다시 준다
       - name: Make gradlew executable
         run: chmod +x gradlew
-        working-directory: android
+        working-directory: ${{ matrix.dir }}/android
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon
-        working-directory: android
+        working-directory: ${{ matrix.dir }}/android
 
       - name: Build unsigned release APK
         run: ./gradlew assembleRelease --no-daemon
-        working-directory: android
+        working-directory: ${{ matrix.dir }}/android
 
       - uses: actions/upload-artifact@v4
         with:
-          name: omok-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: ${{ matrix.slug }}-debug-apk
+          path: ${{ matrix.dir }}/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
         with:
-          name: omok-release-unsigned-apk
-          path: android/app/build/outputs/apk/release/*.apk
+          name: ${{ matrix.slug }}-release-unsigned-apk
+          path: ${{ matrix.dir }}/android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
-      # 폰에서 바로 눌러 설치할 수 있도록 Release 에 APK 를 그대로 붙인다.
-      # (Artifacts 는 zip 으로 내려와서 폰에서 한 번 더 풀어야 한다)
-      # 권한이 막혀 있어도 빌드 자체는 성공시킨다 — Artifacts 로 받으면 되므로.
-      - name: Attach APK to a release
-        if: github.ref == 'refs/heads/main'
-        continue-on-error: true
+  # 폰에서 바로 눌러 설치할 수 있도록 Release 에 APK 를 그대로 붙인다.
+  # (Artifacts 는 zip 으로 내려와서 폰에서 한 번 더 풀어야 한다)
+  # 권한이 막혀 있어도 빌드 자체는 성공시킨다 — Artifacts 로 받으면 되므로.
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: write        # Release 에 APK 를 붙이기 위해 필요
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "*-debug-apk"
+          path: apks
+
+      - name: Attach APKs to a release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          APK="omok-${{ github.run_number }}.apk"
-          cp android/app/build/outputs/apk/debug/app-debug.apk "$APK"
-          gh release create "build-${{ github.run_number }}" "$APK" \
-            --title "오목 빌드 #${{ github.run_number }}" \
-            --notes "폰에서 아래 $APK 를 눌러 설치하세요. (디버그 서명 빌드)" \
+          set -e
+          N="${{ github.run_number }}"
+          cp apks/omok-debug-apk/app-debug.apk "omok-$N.apk"
+          cp apks/duckhunt-debug-apk/app-debug.apk "duckhunt-$N.apk"
+          gh release create "build-$N" "omok-$N.apk" "duckhunt-$N.apk" \
+            --title "빌드 #$N" \
+            --notes "폰에서 아래 APK 를 눌러 설치하세요. (디버그 서명 빌드)
+
+          - \`omok-$N.apk\` — 오목
+          - \`duckhunt-$N.apk\` — 덕 헌팅" \
             --latest

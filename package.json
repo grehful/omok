@@ -2,13 +2,18 @@
   "name": "omok",
   "version": "1.0.0",
   "private": true,
-  "description": "오목 - Android",
+  "description": "오목 · 덕 헌팅 - Android",
   "scripts": {
     "build": "node tools/build-android.mjs",
+    "build:duck": "node tools/build-android.mjs duck",
     "icons": "python3 tools/gen-icons.py",
+    "icons:duck": "python3 tools/gen-duck-icons.py",
     "sync": "npm run build && cap sync android",
+    "sync:duck": "npm run build:duck && cd duck && cap sync android",
     "apk": "npm run check && npm run sync && cd android && ./gradlew assembleDebug",
+    "apk:duck": "npm run check && npm run sync:duck && cd duck/android && ./gradlew assembleDebug",
     "serve": "node tools/build-android.mjs && npx --yes http-server dist -p 8080 -c-1",
+    "serve:duck": "node tools/build-android.mjs duck && npx --yes http-server duck/dist -p 8081 -c-1",
     "check": "python3 tools/check-xml.py"
   },
   "dependencies": {

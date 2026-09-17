@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 게임 화면과 맞춘 값 (duck/www/index.html 의 배경·accent 토큰) -->
+    <color name="splash_bg">#0E1116</color>
+    <color name="ic_launcher_background">#23384D</color>
+    <color name="colorPrimary">#23384D</color>
+    <color name="colorPrimaryDark">#121C27</color>
+    <color name="colorAccent">#E2B437</color>
+</resources>

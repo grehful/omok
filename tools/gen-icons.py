@@ -4,7 +4,10 @@
 나무판 위의 흑돌·백돌을 거리장(SDF)으로 그려 PNG로 내보낸다.
 res/ 아래 mipmap-*, drawable-* 디렉터리를 직접 채운다.
 """
-import math, os, struct, zlib
+import os
+
+from pnglib import write_png, grad, cov, over, sd_circle, sd_round_rect
+import math
 
 RES = os.path.join(os.path.dirname(__file__), "..", "android", "app", "src", "main", "res")
 
@@ -12,49 +15,6 @@ WOOD_A, WOOD_B = (229, 187, 130), (198, 145, 63)
 GRID = (74, 52, 24)
 BLACK_STOPS = [(0.0, (120, 120, 134)), (0.42, (43, 43, 51)), (1.0, (8, 8, 12))]
 WHITE_STOPS = [(0.0, (255, 255, 255)), (0.5, (244, 240, 228)), (1.0, (196, 188, 170))]
-
-
-def write_png(path, w, h, px):
-    raw = b"".join(b"\x00" + bytes(px[y * w * 4:(y + 1) * w * 4]) for y in range(h))
-    def chunk(tag, data):
-        body = tag + data
-        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xffffffff)
-    ihdr = struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "wb") as f:
-        f.write(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr)
-                + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
-
-
-def lerp(a, b, t):
-    return tuple(a[i] + (b[i] - a[i]) * t for i in range(3))
-
-
-def grad(stops, t):
-    t = max(0.0, min(1.0, t))
-    for i in range(len(stops) - 1):
-        (p0, c0), (p1, c1) = stops[i], stops[i + 1]
-        if t <= p1:
-            return lerp(c0, c1, (t - p0) / (p1 - p0) if p1 > p0 else 0)
-    return stops[-1][1]
-
-
-def cov(d):
-    """부호거리 -> 알파 (1px 안티에일리어싱)."""
-    return max(0.0, min(1.0, 0.5 - d))
-
-
-def over(dst, src, a):
-    return tuple(src[i] * a + dst[i] * (1 - a) for i in range(3))
-
-
-def sd_circle(x, y, cx, cy, r):
-    return math.hypot(x - cx, y - cy) - r
-
-
-def sd_round_rect(x, y, cx, cy, hw, hh, rad):
-    qx, qy = abs(x - cx) - (hw - rad), abs(y - cy) - (hh - rad)
-    return math.hypot(max(qx, 0), max(qy, 0)) + min(max(qx, qy), 0) - rad
 
 
 def render(size, shape, inset=0.0):

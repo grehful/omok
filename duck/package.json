@@ -1,0 +1,6 @@
+{
+  "name": "duckhunt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "덕 헌팅 - Android (capacitor CLI 가 cwd 의 package.json 을 읽으므로 둔다)"
+}

@@ -1,0 +1,12 @@
+{
+  "appId": "com.grehful.duckhunt",
+  "appName": "덕 헌팅",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0E1116"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
